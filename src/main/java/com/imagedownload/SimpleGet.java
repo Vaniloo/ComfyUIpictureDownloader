@@ -18,12 +18,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.imagedownload.comfy.ComfyClient;
 import com.imagedownload.model.ImageInfo;
 
 
 public class SimpleGet {
 
     public static void main(String[] args) {
+        ComfyClient client=new ComfyClient("http://127.0.0.1:8188");
         int times=0;
         Set<String> seen=new HashSet<>();
         long Ms=10000;
@@ -31,7 +33,7 @@ public class SimpleGet {
             try{
                 times++;
                 System.out.println("Polling attempt number: "+times);
-            String historyJson=getHistoryJson();
+            String historyJson=client.getHistoryJson();
             if(historyJson == null||historyJson.isEmpty()){
                 Thread.sleep(Ms);
                 continue;
@@ -42,7 +44,7 @@ public class SimpleGet {
                 seen.add(info.filename);
                 String urlString=buildUrl(info);
                 System.out.println("Downloading from URL: "+urlString);
-                downloadImage(urlString,info.filename);
+                client.downloadImage(urlString,info.filename);
             }
         }
                 Thread.sleep(Ms);
@@ -62,113 +64,7 @@ public class SimpleGet {
 
 
     }
-    public static void downloadImage(String urlString, String filename) {
-        HttpURLConnection connection=null;
-        BufferedInputStream inputStream=null;
-        BufferedOutputStream fos=null;
-        try {
-            URL url=new URL(urlString);
-            connection=(HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(50000);
-            connection.setReadTimeout(50000);
-            connection.connect();
-            int responseCode=connection.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
-            if(responseCode>=200&&responseCode<300){
-                File file=new File(filename);
-                fos=new BufferedOutputStream(new FileOutputStream(file));
-                inputStream=new BufferedInputStream(connection.getInputStream());
-                byte[]buffer=new byte[4096];
-                int len;
-                while((len=inputStream.read(buffer))!=-1){
-                    fos.write(buffer,0,len);
-                }
-            }
-            else if(responseCode==404){
-                System.out.println("Resource not found (404)");
-            }
-            else if(responseCode==500){
-                System.out.println("Server error (500)");
-            }
-            else if(responseCode==403){
-                System.out.println("Access forbidden (403)");
-            }
-            else{
-                System.out.println("Unhandled response code: " + responseCode);
-            }
-                
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            if(fos!=null){
-                try{
-                    fos.close();
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
 
-    }
-    public static String getHistoryJson(){
-        HttpURLConnection connection=null;
-        BufferedInputStream inputStream=null;
-        String historyJson="";
-        try {
-            URL baseUrl=new URL("http://127.0.0.1:8188/history");
-            connection=(HttpURLConnection) baseUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(50000);
-            connection.setReadTimeout(50000);
-            connection.connect();
-            int responseCode=connection.getResponseCode();
-            if(responseCode>=200&&responseCode<300){
-                StringBuilder sb =new StringBuilder();
-                inputStream=new BufferedInputStream(connection.getInputStream());
-                byte[]buffer=new byte[4096];
-                int len;
-                while((len=inputStream.read(buffer))!=-1){
-                    sb.append(new String(buffer,0,len));
-                }
-                historyJson=sb.toString();
-            }
-
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        finally{
-            if(inputStream!=null){
-                try{
-                    inputStream.close();
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-            if(connection!=null){
-                connection.disconnect();
-            }
-        }
-
-        return historyJson;
-    }
     public static String getLastestPromptId(String jsonString){
         String latestPromptId="";
         try{
@@ -217,11 +113,11 @@ public class SimpleGet {
     return imageInfos;
     }
     public static String buildUrl(ImageInfo info){
-        String baseString="http://127.0.0.1:8188/api/view";
+        String baseUrl="http://127.0.0.1:8188/api/view";
         String f=URLEncoder.encode(info.filename,StandardCharsets.UTF_8);
         String type=URLEncoder.encode(info.type,StandardCharsets.UTF_8);
         String subfolder=URLEncoder.encode(info.subfolder,StandardCharsets.UTF_8);
-        return baseString+"?filename="+f+"&type="+type+"&subfolder="+subfolder;
+        return baseUrl+"?filename="+f+"&type="+type+"&subfolder="+subfolder;
         
     }
 }   
