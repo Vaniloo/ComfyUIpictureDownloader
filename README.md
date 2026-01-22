@@ -23,7 +23,7 @@
 
 ## 项目结构
 
-text
+```text
 src/main/java/com/imagedownload
 ├── App.java                 # 程序入口
 ├── comfy
@@ -34,31 +34,32 @@ src/main/java/com/imagedownload
 │   └── HistoryParser.java   # history JSON 解析逻辑
 └── service
     └── PollingService.java  # 轮询服务，控制下载流程
-运行环境
+```
+## 运行环境
 	•	Java 17+
 	•	Maven
 	•	已运行的 ComfyUI 服务（本地或远程）
-示例地址：http://127.0.0.1:8188
-使用方式
+## 示例地址：http://127.0.0.1:8188
+## 使用方式
 	1.	启动 ComfyUI（本地或远程）
 	2.	在 App.java 中配置：
-	•	baseUrl
-	•	轮询间隔
-	•	下载目录
+	   •	baseUrl
+	   •	轮询间隔
+	   •	下载目录
 	3.	构建并运行：mvn clean package
-java -jar target/ComfyUIpictureDownloader.jar
-程序会自动轮询 ComfyUI 的生成历史，并下载最新生成的图片。
-技术说明
+    java -jar target/ComfyUIpictureDownloader.jar
+    程序会自动轮询 ComfyUI 的生成历史，并下载最新生成的图片。
+## 技术说明
 	•	网络通信基于 HTTP（底层 TCP）
 	•	使用轮询方式检测生成完成（未使用 WebSocket）
 	•	使用 Gson 解析 ComfyUI 返回的 JSON 结构
 	•	仅下载最新 prompt 对应的输出图片
-可扩展方向
+## 可扩展方向
 	•	支持 POST /prompt，从代码直接提交生成任务
 	•	使用 WebSocket 替代轮询，提高实时性
 	•	将配置抽离为配置文件或命令行参数
 	•	支持多 prompt 并发监听
 	•	封装为 CLI 工具
-说明
+## 说明
 
-本项目仅用于学习与实验，不包含任何 ComfyUI 核心代码。
+   本项目仅用于学习与实验，不包含任何 ComfyUI 核心代码。
