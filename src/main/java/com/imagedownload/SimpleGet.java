@@ -18,19 +18,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.imagedownload.model.ImageInfo;
 
 
 public class SimpleGet {
-    private static class ImageInfo{
-        String filename;
-        String type;
-        String subfolder;
-        ImageInfo(String filename,String type,String subfolder){
-            this.filename=filename;
-            this.type=type;
-            this.subfolder=subfolder;
-        }
-    }
+
     public static void main(String[] args) {
         int times=0;
         Set<String> seen=new HashSet<>();
